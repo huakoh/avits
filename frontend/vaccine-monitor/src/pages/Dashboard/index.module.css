@@ -1,0 +1,140 @@
+.dashboard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.statsRow {
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
+/* 主内容区域 */
+.mainContent {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.leftColumn {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* 防止flex子项超出 */
+  min-height: 0;
+  overflow: hidden;
+}
+
+.rightColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 货道卡片模块 */
+.channelCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.channelCard :global(.ant-card-body) {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 温度卡片模块 - 固定高度比例 */
+.tempCard {
+  flex: 0 0 180px;
+  overflow: hidden;
+}
+
+.tempCard :global(.ant-card-body) {
+  height: calc(100% - 44px);
+  overflow: hidden;
+  padding: 12px !important;
+}
+
+/* 订单卡片模块 - 占用剩余空间 */
+.orderCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.orderCard :global(.ant-card-body) {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+/* 订单表格容器 */
+.orderCard :global(.ant-table-wrapper) {
+  height: 100%;
+}
+
+.orderCard :global(.ant-table) {
+  height: 100%;
+}
+
+.orderCard :global(.ant-table-container) {
+  height: 100%;
+}
+
+.orderCard :global(.ant-table-body) {
+  max-height: calc(100% - 40px) !important;
+}
+
+/* 温度仪表盘容器 */
+.tempGaugeContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* 4:3 紧凑模式布局调整 */
+.compactLayout .mainContent {
+  flex-direction: row;
+}
+
+.compactLayout .leftColumn {
+  flex: 1.6;
+}
+
+.compactLayout .rightColumn {
+  flex: 1;
+}
+
+.compactLayout .tempCard {
+  flex: 0 0 160px;
+}
+
+/* 表格容器 */
+.tableContainer {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 图表容器 */
+.chartContainer {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}

@@ -1,0 +1,141 @@
+# ============================================
+# 疫苗自动分拣控制系统 - Docker Compose
+# ============================================
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: vaccine-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: vaccine_db
+      TZ: Asia/Shanghai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: vaccine-redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Go 网关服务
+  go-gateway:
+    build:
+      context: ./backend/go-gateway
+      dockerfile: Dockerfile
+    container_name: vaccine-gateway
+    restart: always
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres123
+      - DATABASE_NAME=vaccine_db
+      - REDIS_ADDR=redis:6379
+      - SERVER_PORT=8080
+      - GIN_MODE=release
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "9090:9090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Python 视觉服务
+  python-vision:
+    build:
+      context: ./backend/python-vision
+      dockerfile: Dockerfile
+    container_name: vaccine-vision
+    restart: always
+    environment:
+      - GRPC_PORT=5001
+      - REDIS_HOST=redis
+      - DATABASE_URL=postgresql://postgres:postgres123@postgres:5432/vaccine_db
+      - CAMERA_ENABLED=false
+    ports:
+      - "5001:5001"
+    volumes:
+      - vision_images:/app/images
+      - vision_models:/app/models
+    depends_on:
+      - redis
+
+  # Web 前端
+  web-frontend:
+    build:
+      context: ./frontend/vaccine-monitor
+      dockerfile: Dockerfile
+    container_name: vaccine-web
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - go-gateway
+
+  # MinIO 对象存储 (用于图片存储)
+  minio:
+    image: minio/minio:latest
+    container_name: vaccine-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  # Grafana 监控 (可选)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: vaccine-grafana
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  vision_images:
+  vision_models:
+  grafana_data:
+
+networks:
+  default:
+    name: vaccine-network
+

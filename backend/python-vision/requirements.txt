@@ -1,0 +1,42 @@
+# 疫苗视觉识别服务依赖
+
+# gRPC
+grpcio==1.60.0
+grpcio-tools==1.60.0
+protobuf==4.25.1
+
+# 图像处理
+opencv-python==4.8.1.78
+Pillow==10.1.0
+numpy==1.26.2
+
+# AI/ML
+ultralytics==8.0.230  # YOLOv8
+torch==2.1.2
+torchvision==0.16.2
+
+# OCR
+paddlepaddle==2.5.2
+paddleocr==2.7.0.3
+
+# 条码识别
+pyzbar==0.1.9
+
+# 相机SDK (海康威视)
+# MVS SDK 需要单独安装
+
+# 工具库
+pyyaml==6.0.1
+python-dotenv==1.0.0
+loguru==0.7.2
+schedule==1.2.1
+
+# 数据库
+psycopg2-binary==2.9.9
+redis==5.0.1
+SQLAlchemy==2.0.23
+
+# 测试
+pytest==7.4.3
+pytest-asyncio==0.23.2
+
